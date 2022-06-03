@@ -41,7 +41,4 @@ public class FilmController {
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
     }
-
-
-
 }
