@@ -8,6 +8,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -21,6 +23,7 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
+    private Set<Integer> usersIdLikesSet = new HashSet<>();
 
     public void generateId() {
         this.id = idCounter++;
