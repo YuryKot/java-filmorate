@@ -13,7 +13,6 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private static int idCounter = 1;
 
     private int id;
     @NotBlank(message = "name can`t be empty")
@@ -24,10 +23,6 @@ public class Film {
     @Positive
     private final int duration;
     private Set<Integer> usersIdLikesSet = new HashSet<>();
-
-    public void generateId() {
-        this.id = idCounter++;
-    }
 
     public void validateFilm() {
         if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {

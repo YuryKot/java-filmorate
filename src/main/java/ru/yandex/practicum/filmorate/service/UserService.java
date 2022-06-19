@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -20,9 +22,32 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public User addUser(User user) {
+        return userStorage.addUser(user);
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
+
+    public List<User> getUsers() {
+        return userStorage.getUsers();
+    }
+
+    public User getUser(int id) {
+        return userStorage.getUser(id);
+    }
+
+    public boolean isUserExists(int id) {
+        return userStorage.isUserExists(id);
+    }
+
     public void addFriend(int id, int friendId) {
         User user = userStorage.getUser(id);
-        userStorage.getUser(friendId);
+        if (!userStorage.isUserExists(friendId)) {
+            throw new NotFoundException(
+                    String.format("Пользователь с id = %d для добавления в друзья не найден.", friendId));
+        }
         Set<Integer> friendsIdList = user.getFriendsIdSet();
         friendsIdList.add(friendId);
         user.setFriendsIdSet(friendsIdList);
@@ -31,7 +56,10 @@ public class UserService {
 
     public void deleteFriend(int id, int friendId) {
         User user = userStorage.getUser(id);
-        userStorage.getUser(friendId);
+        if (!userStorage.isUserExists(friendId)) {
+            throw new NotFoundException(
+                    String.format("Пользователь с id = %d для удаления из друзей не найден.", friendId));
+        }
         Set<Integer> friendsIdList = user.getFriendsIdSet();
         if (!friendsIdList.contains(friendId)) {
             throw new ValidationException(String.format("Пользователи с id %d, %d не являются друзьями", id, friendId));

@@ -12,7 +12,6 @@ import java.util.Set;
 
 @Data
 public class User {
-    private static int idCounter = 1;
 
     private int id;
     @Email(message = "Email неверного формата")
@@ -24,10 +23,6 @@ public class User {
     @PastOrPresent
     private final LocalDate birthday;
     private Set<Integer> friendsIdSet = new HashSet<>();
-
-    public void generateId() {
-        this.id = idCounter++;
-    }
 
     public User checkUserName() {
         if (name == null || name.isBlank()) {
