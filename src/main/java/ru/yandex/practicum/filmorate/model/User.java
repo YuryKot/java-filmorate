@@ -7,10 +7,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    private static int idCounter = 1;
 
     private int id;
     @Email(message = "Email неверного формата")
@@ -21,10 +22,7 @@ public class User {
     private final String name;
     @PastOrPresent
     private final LocalDate birthday;
-
-    public void generateId() {
-        this.id = idCounter++;
-    }
+    private Set<Integer> friendsIdSet = new HashSet<>();
 
     public User checkUserName() {
         if (name == null || name.isBlank()) {

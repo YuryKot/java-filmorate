@@ -8,10 +8,11 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
-    private static int idCounter = 1;
 
     private int id;
     @NotBlank(message = "name can`t be empty")
@@ -21,10 +22,7 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
-
-    public void generateId() {
-        this.id = idCounter++;
-    }
+    private Set<Integer> usersIdLikesSet = new HashSet<>();
 
     public void validateFilm() {
         if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
