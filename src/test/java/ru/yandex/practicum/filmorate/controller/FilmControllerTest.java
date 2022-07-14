@@ -4,12 +4,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryMpaStorage;
 import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -25,6 +26,7 @@ class FilmControllerTest {
 
     static FilmController filmController;
     static Validator validator;
+    static Mpa mpa = InMemoryMpaStorage.MPA.get(1);
 
     @BeforeAll
     static void beforeAll() {
@@ -61,8 +63,11 @@ class FilmControllerTest {
     @Test
     void createFilmWithEmptyName() {
         Film film1 = new Film(null, "description", LocalDate.now(), 100);
+        film1.setMpa(mpa);
         Film film2 = new Film("", "description", LocalDate.now(), 100);
+        film2.setMpa(mpa);
         Film film3 = new Film(" ", "description", LocalDate.now(), 100);
+        film3.setMpa(mpa);
         Set<ConstraintViolation<Film>> violations1 = validator.validate(film1);
         assertEquals(1, violations1.size());
         Set<ConstraintViolation<Film>> violations2 = validator.validate(film2);
@@ -74,7 +79,9 @@ class FilmControllerTest {
     @Test
     void createFilmWithLongDescription() {
         Film film1 = new Film("name1", "q".repeat(200), LocalDate.now(), 100);
+        film1.setMpa(mpa);
         Film film2 = new Film("name2", "q".repeat(201), LocalDate.now(), 100);
+        film2.setMpa(mpa);
         Set<ConstraintViolation<Film>> violations1 = validator.validate(film1);
         assertEquals(0, violations1.size());
         Set<ConstraintViolation<Film>> violations2 = validator.validate(film2);
@@ -84,7 +91,9 @@ class FilmControllerTest {
     @Test
     void createFilmWithNegativeDuration() {
         Film film1 = new Film("name1", "q", LocalDate.now(), 0);
+        film1.setMpa(mpa);
         Film film2 = new Film("name2", "q", LocalDate.now(), -1);
+        film2.setMpa(mpa);
         Set<ConstraintViolation<Film>> violations1 = validator.validate(film1);
         assertEquals(1, violations1.size());
         Set<ConstraintViolation<Film>> violations2 = validator.validate(film2);

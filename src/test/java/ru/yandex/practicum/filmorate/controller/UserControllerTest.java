@@ -88,7 +88,7 @@ class UserControllerTest {
 
     @Test
     void createUserWithBirthdayInFuture() {
-        User user = new User("email@mail.ru", "login", "name", LocalDate.of(2222, 01, 01));
+        User user = new User("email@mail.ru", "login", "name", LocalDate.of(2222, 1, 1));
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertEquals(1, violations.size());
     }

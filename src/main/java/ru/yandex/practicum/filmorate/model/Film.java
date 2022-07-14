@@ -4,6 +4,7 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -22,7 +23,10 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
+    @NotNull(message = "mpa can`t be null")
+    private Mpa mpa;
     private Set<Integer> usersIdLikesSet = new HashSet<>();
+    private Set<Genre> genres = new HashSet<>();
 
     public void validateFilm() {
         if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
