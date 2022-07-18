@@ -1,12 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
@@ -14,83 +10,23 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-@Service
-public class UserService {
+public interface UserService {
 
-    private final UserStorage userStorage;
+    User addUser(User user);
 
-    @Autowired
-    public UserService(@Qualifier("UserStorageDaoImpl")UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    User updateUser(User user);
 
-    public User addUser(User user) {
-        return userStorage.addUser(user);
-    }
+    List<User> getUsers();
 
-    public User updateUser(User user) {
-        return userStorage.updateUser(user);
-    }
+    User getUser(int id);
 
-    public List<User> getUsers() {
-        return userStorage.getUsers();
-    }
+    boolean isUserExists(int id);
 
-    public User getUser(int id) {
-        return userStorage.getUser(id);
-    }
+    void addFriend(int id, int friendId);
 
-    public boolean isUserExists(int id) {
-        return userStorage.isUserExists(id);
-    }
+    void deleteFriend(int id, int friendId);
 
-    public void addFriend(int id, int friendId) {
-        User user = userStorage.getUser(id);
-        if (!userStorage.isUserExists(friendId)) {
-            throw new NotFoundException(
-                    String.format("Пользователь с id = %d для добавления в друзья не найден.", friendId));
-        }
-        Set<Integer> friendsIdList = user.getFriendsIdSet();
-        friendsIdList.add(friendId);
-        user.setFriendsIdSet(friendsIdList);
-        userStorage.updateUser(user);
-    }
+    Set<User> getCommonFriends(int id, int otherId);
 
-    public void deleteFriend(int id, int friendId) {
-        User user = userStorage.getUser(id);
-        if (!userStorage.isUserExists(friendId)) {
-            throw new NotFoundException(
-                    String.format("Пользователь с id = %d для удаления из друзей не найден.", friendId));
-        }
-        Set<Integer> friendsIdList = user.getFriendsIdSet();
-        if (!friendsIdList.contains(friendId)) {
-            throw new ValidationException(String.format("Пользователи с id %d, %d не являются друзьями", id, friendId));
-        }
-        friendsIdList.remove(friendId);
-        user.setFriendsIdSet(friendsIdList);
-        userStorage.updateUser(user);
-    }
-
-    public Set<User> getCommonFriends(int id, int otherId) {
-        User user = userStorage.getUser(id);
-        User friend = userStorage.getUser(otherId);
-        Set<Integer> firstFriendsList = user.getFriendsIdSet();
-        Set<Integer> secondFriendsList = friend.getFriendsIdSet();
-        Set<Integer> commonFriends = firstFriendsList.stream().filter(secondFriendsList::contains).collect(toSet());
-        return getUserSetFromIdUserSet(commonFriends);
-    }
-
-    public Set<User> getUserFriends(int id) {
-        User user = userStorage.getUser(id);
-        Set<Integer> friendsIdList = user.getFriendsIdSet();
-        return getUserSetFromIdUserSet(friendsIdList);
-    }
-
-    private Set<User> getUserSetFromIdUserSet(Set<Integer> idUserSet) {
-        Set<User> userSet = new HashSet<>();
-        for (int idUser : idUserSet) {
-            userSet.add(userStorage.getUser(idUser));
-        }
-        return userSet;
-    }
+    Set<User> getUserFriends(int id);
 }
