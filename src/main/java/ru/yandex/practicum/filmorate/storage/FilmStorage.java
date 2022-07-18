@@ -12,4 +12,8 @@ public interface FilmStorage {
     List<Film> getFilms();
 
     Film getFilm(int id);
+
+    default List<Film> getPopularFilms(int count) {
+        throw new UnsupportedOperationException();
+    }
 }

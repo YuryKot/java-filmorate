@@ -57,11 +57,11 @@ public class UserStorageDaoImpl implements UserStorage {
             user = user.checkUserName();
             String sql = "UPDATE PUBLIC.USERS SET NAME = ?, LOGIN = ?, BIRTHDAY = ?, EMAIL = ? WHERE USER_ID = ?";
             jdbcTemplate.update(sql,
-                                user.getName(),
-                                user.getLogin(),
-                                Date.valueOf(user.getBirthday()),
-                                user.getEmail(),
-                                user.getId());
+                    user.getName(),
+                    user.getLogin(),
+                    Date.valueOf(user.getBirthday()),
+                    user.getEmail(),
+                    user.getId());
             deleteFriends(user.getId());
             insertFriends(user);
             log.info("Обновлены параметры пользователя: {}", user.toString());
@@ -99,6 +99,19 @@ public class UserStorageDaoImpl implements UserStorage {
         String sql = "SELECT * FROM PUBLIC.USERS WHERE USER_ID = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         return userRows.next();
+    }
+
+    @Override
+    public Set<User> getCommonFriends(int id, int otherId) {
+        String sql = "SELECT * FROM PUBLIC.USERS WHERE USER_iD IN (" +
+                "SELECT F1.RECIPIENT_ID FROM PUBLIC.FRIENDS F1 " +
+                "JOIN PUBLIC.FRIENDS F2 ON F1.RECIPIENT_ID = F2.RECIPIENT_ID " +
+                "WHERE F1.SENDER_ID = ? AND F2.SENDER_ID = ?)";
+        Set<User> users = new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id, otherId));
+        for (User user : users) {
+            setFriendsIdSet(user);
+        }
+        return users;
     }
 
     private void setFriendsIdSet(User user) {

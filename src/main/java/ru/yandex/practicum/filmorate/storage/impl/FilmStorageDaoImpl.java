@@ -45,12 +45,12 @@ public class FilmStorageDaoImpl implements FilmStorage {
                 "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-                            PreparedStatement stmt = con.prepareStatement(sql, new String[]{"FILM_ID"});
-                            stmt.setString(1, film.getName());
-                            stmt.setString(2, film.getDescription());
-                            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
-                            stmt.setInt(4, film.getDuration());
-                            stmt.setInt(5, film.getMpa().getId());
+            PreparedStatement stmt = con.prepareStatement(sql, new String[]{"FILM_ID"});
+            stmt.setString(1, film.getName());
+            stmt.setString(2, film.getDescription());
+            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
+            stmt.setInt(4, film.getDuration());
+            stmt.setInt(5, film.getMpa().getId());
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
@@ -70,12 +70,12 @@ public class FilmStorageDaoImpl implements FilmStorage {
                     "NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, MPA = ?" +
                     "WHERE FILM_ID = ?";
             jdbcTemplate.update(sql,
-                                film.getName(),
-                                film.getDescription(),
-                                film.getReleaseDate(),
-                                film.getDuration(),
-                                film.getMpa().getId(),
-                                film.getId());
+                    film.getName(),
+                    film.getDescription(),
+                    film.getReleaseDate(),
+                    film.getDuration(),
+                    film.getMpa().getId(),
+                    film.getId());
             int mpaId = film.getMpa().getId();
             film.setMpa(mpaStorage.getMpaById(mpaId));
             deleteGenres(film.getId());
@@ -112,6 +112,20 @@ public class FilmStorageDaoImpl implements FilmStorage {
         film.setGenres(genreDao.getFilmGenres(id));
         setUsersIdLikesSet(film);
         return film;
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        String sql = "SELECT F.FILM_ID FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA " +
+                "FROM PUBLIC.FILM AS F LEFT JOIN FILM_USER FU on F.FILM_ID = FU.FILM_ID " +
+                "GROUP BY F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA " +
+                "ORDER BY COUNT(FU.USER_ID) DESC LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+        for (Film film : films) {
+            film.setGenres(genreDao.getFilmGenres(film.getId()));
+            setUsersIdLikesSet(film);
+        }
+        return films;
     }
 
     public boolean isFilmExists(int id) {
